@@ -5,7 +5,27 @@ import random
 
 class Board:
     def __init__(self):
+        self.player = None
+        self.computer_player = None
         self.areas={1: " ", 2: " ", 3: " ", 4: " ", 5: " ", 6: " ", 7: " ", 8: " ", 9: " "}
+
+    def set_players_type(self):
+        r = None
+        while r not in(1, 2):
+            try:
+                r = int(input("""
+                Which kind of player you want to be? 
+                
+                1 - X
+               
+                2 - O
+               
+                type you choice: """))
+            except Exception as e:
+                tipo_erro = type(e).__name__
+                print(f"\nERROR: {tipo_erro}!\nPlease type a valid option.\n")
+        self.player = "X" if r==1 else "O"
+        self.computer_player = "O" if r==1 else "X"
 
     def set_areas(self, n, symbol):
         self.areas[n] = symbol
@@ -13,36 +33,51 @@ class Board:
     def get_areas(self, n):
         return self.areas.get(n)
 
-    def players_play_choice(self, player_symbol, pc_symbol):
-        play_choice = 9999999
-        pc_play_choice = 9999999
-        while play_choice not in (1, 9):
-           try:
-               
-               play_choice = int(input("What's your play: "))
-               if self.get_areas(play_choice) == player_symbol or self.get_areas(play_choice) not in (" "):
-                    print("This Area has already been chosen! Please select another one.")
-                    play_choice = 9999999
-               else:
-                    self.set_areas(play_choice, player_symbol)
-                    break
-           except Exception as e:
-            tipo_erro = type(e).__name__
-            print(f"\nERROR: {tipo_erro}!\nPlease type a valid option.\n")
-                
-        self.show_actual_play()
-        time.sleep(0.8)
+    def play_choices(self):
+        players_play_choice = None
+        computers_play_choice = None
         while True:
-            pc_play_choice = random.randint(1, 9)
-            if self.get_areas(pc_play_choice) == pc_symbol or self.get_areas(pc_play_choice) not in (" "):
-                pc_play_choice = random.randint(1, 9)
-            else:
-                self.set_areas(pc_play_choice, pc_symbol)
-                break
-        self.show_actual_play()
+            while players_play_choice not in (1, 9):
+                try:               
+                    players_play_choice = int(input("What's your play: "))
+                    if self.get_areas(players_play_choice) == self.player or self.get_areas(players_play_choice) not in (" "):
+                            print("This Area has already been chosen! Please select another one.")
+                            players_play_choice = None
+                    else:
+                            self.set_areas(players_play_choice, self.player)
+                            break
+                except Exception as e:
+                    tipo_erro = type(e).__name__
+                    print(f"\nERROR: {tipo_erro}!\nPlease type a valid option.\n")    
+            self.show_actual_play()
+            if self.test_victory()==True: break
+            time.sleep(0.8)
+            while True:
+                computers_play_choice = random.randint(1, 9)
+                if self.get_areas(computers_play_choice) == self.computer_player or self.get_areas(computers_play_choice) != " ":
+                    computers_play_choice = random.randint(1, 9)
+                else:
+                    self.set_areas(computers_play_choice, self.computer_player)
+                    break
+            self.show_actual_play()
+            if self.test_victory()==True: break
 
     def test_victory(self):
-        pass
+        victory_sequencies = [
+            (1, 2, 3), (1, 4, 7), (1, 5, 9), 
+            (2, 5, 8), (3, 6, 9), (3, 5, 7), 
+            (4, 5, 6), (7, 8, 9)
+        ]
+        for vs in victory_sequencies:
+            if self.areas[vs[0]] == self.areas[vs[1]] == self.areas[vs[2]] != " ":
+                print(f"Congrats player '{self.areas[vs[0]]}'! You've won the match with the sequence {vs}!")
+                return True
+                #return self.areas[vs[0]], vs
+        if all(v != " " for v in self.areas.values()):
+            print("We've a draw match.")
+            return True
+        else:
+            return False
 
     def show_actual_play(self):
         print("\n")
@@ -77,80 +112,13 @@ class Board:
 
         print("\n")
 
-class Player:
-    def __init__(self):
-        self.player_name = 'Anonymus'
-        self.player_type = "none"
-        self.pc_player_type = "none"
+def main():
+    board = Board()
+    board.show_map()
+    #time.sleep(1)
+    #os.system('cls')
+    board.set_players_type()
+    board.play_choices()
 
-    def set_player_name(self):
-        self.player_name = input("Type your name, player: ")
-
-    def get_player_name(self):
-        return self.player_name
-
-    def set_player_type(self):
-        r = 9999999
-        while r not in(1, 2):
-            try:
-                r = int(input("""
-                Which kind of player you want to be? 
-                
-                1 - X
-               
-                2 - O
-               
-                type you choice: """))
-            except Exception as e:
-                tipo_erro = type(e).__name__
-                print(f"\nERROR: {tipo_erro}!\nPlease type a valid option.\n")
-        self.player_type = "X" if r==1 else "O"
-        self.set_pc_player_type()
-
-    def get_player_type(self):
-        return self.player_type
-
-    def set_pc_player_type(self):
-        if self.player_type == "X":
-            self.pc_player_type="O"
-        elif self.player_type == "O":
-            self.pc_player_type="X"
-
-    def get_pc_player_type(self):
-        return self.pc_player_type
-
-
-#main
-##player = Player()
-##board = Board()
-##player.set_player_name()
-##player.set_player_type()
-#print(f"{player.get_player_name()}: {player.get_player_type()}")
-#print(f"Computer: {player.get_pc_player_type()}")
-##board.show_map()
-##time.sleep(1)
-##os.system('cls')
-##board.show_actual_play()
-##while True:
-##    board.players_play_choice(player.get_player_type(), player.get_pc_player_type())
-##print("GAME OVER!")
-
-meu_dict = {1: "X", 2: "O", 3: "X", 4: "O", 5: "X", 6: "O", 7: "O", 8: " ", 9: "X"}
-dicionario_inverso = {}
-for chave, valor in meu_dict.items():
-    #print(f"chave: {chave}")
-    #print(f"valor: {valor}")
-    if valor not in dicionario_inverso:
-        print(f"\nchave (IF): {chave}")
-        print(f"valor (IF): {valor}")
-        dicionario_inverso[valor] = [chave]
-        print(f"dicionario_inverso (IF): {dicionario_inverso}")
-    else:
-        print(f"\nvalor (ELSE): {valor}")
-        dicionario_inverso[valor].append(chave)
-        print(f"dicionario_inverso (ELSE): {dicionario_inverso}")
-
-# Exibindo chaves com valores iguais
-for valor, chaves in dicionario_inverso.items():
-    if len(chaves) > 1:
-        print(f'Valor {valor} encontrado nas chaves: {chaves}')
+#Play-time
+main()
