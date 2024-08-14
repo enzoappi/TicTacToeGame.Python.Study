@@ -34,13 +34,13 @@ class Board:
         return self.areas.get(n)
 
     def play_choices(self):
-        players_play_choice = None
-        computers_play_choice = None
         while True:
+            players_play_choice = None
+            computers_play_choice = None
             while players_play_choice not in (1, 9):
                 try:               
                     players_play_choice = int(input("What's your play: "))
-                    if self.get_areas(players_play_choice) == self.player or self.get_areas(players_play_choice) not in (" "):
+                    if self.get_areas(players_play_choice) == self.player or self.get_areas(players_play_choice) != " ":
                             print("This Area has already been chosen! Please select another one.")
                             players_play_choice = None
                     else:
